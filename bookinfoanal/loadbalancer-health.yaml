@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: loadbalancer-health
+spec:
+  metrics:
+    - name: test
+      initialDelay: 120s
+      provider:
+        job:
+          spec:
+            template:
+              spec:
+                restartPolicy: Never
+                containers:
+                - name: curler
+                  image: curlimages/curl
+                  command: ["sh",  "-c"]
+                  args:
+                    - >-
+                      i=0;
+                      while [ $i -ne 200 ];
+                      do i=$(($i+1));
+                      echo hi $i iteration;
+                      curl -i https://bookinfo-bl.aoa.oes.opsmx.org/productpage?u=normal ;
+                      curl -i https://bookinfo-cy.aoa.oes.opsmx.org/productpage?u=normal ;
+                      sleep 1;
+                      done;
